@@ -1,0 +1,8 @@
+prefix=/home/ubuntu/amr_ws/install
+
+Name: mpu6050_ros
+Description: Description of mpu6050_ros
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

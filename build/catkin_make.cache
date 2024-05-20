@@ -1,0 +1,2 @@
+follow_waypoints-master
+-DCATKIN_DEVEL_PREFIX=/home/ubuntu/amr_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ubuntu/amr_ws/install -DCATKIN_WHITELIST_PACKAGES=follow_waypoints -G Unix Makefiles

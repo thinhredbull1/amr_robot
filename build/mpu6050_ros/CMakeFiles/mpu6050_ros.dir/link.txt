@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -O3 -DNDEBUG  -shared -Wl,-soname,libmpu6050_ros.so -o /home/ubuntu/amr_ws/devel/lib/libmpu6050_ros.so CMakeFiles/mpu6050_ros.dir/src/conversion.cpp.o CMakeFiles/mpu6050_ros.dir/src/transformation.cpp.o CMakeFiles/mpu6050_ros.dir/src/mpu6050_handler.cpp.o CMakeFiles/mpu6050_ros.dir/src/mpu6050_ros_node.cpp.o 
