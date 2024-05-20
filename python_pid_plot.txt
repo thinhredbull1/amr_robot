@@ -1,0 +1,229 @@
+import serial
+import threading
+import tkinter as tk
+from tkinter import ttk
+import time
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+# Khởi tạo đối tượng Serial
+ser = serial.Serial('COM9', 57600)  # Thay 'COM1' bằng cổng Serial của bạn và baudrate phù hợp
+
+# Khởi tạo danh sách cho 2 mảng dữ liệu
+
+Km3=10
+Tm3 = 0.35  # time to 0.63*Km
+Td3 = Tm3/2  # time to steady state
+
+
+Km = 366.3004 # Km, is  encoder counts/sec/pwm trong vi du cua peter thi ho dung deg/s --> * voltage --> pwm
+Km2= 412.0313
+Tm = 0.38  # time to 0.63*Km
+Td = Tm/2  # time to steady state
+zeta = 0.707  # damping ratio
+KP = 16 * Tm / (Km * zeta * zeta * Td * Td)
+KD = (8 * Tm - Td) / (Km * Td)
+KP2 = 16 * Tm / (Km2 * zeta * zeta * Td * Td)
+KD2 = (8 * Tm - Td) / (Km2 * Td)
+KP3 = 16 * Tm3 / (Km3 * zeta * zeta * Td3 * Td3)
+KD3 = (8 * Tm3 - Td3) / (Km3 * Td3)
+print(KP3)
+print(KD3)
+print(KP)
+print(KD)
+print(KP2)
+print(KD2)
+
+
+# Hàm để đọc dữ liệu từ Serial và xử lý
+class serial_process():
+    def __init__(self, root):
+        self.data_split_l = 0
+        self.data_split_r = 0
+        self.root = root
+        self.p_begin=0
+        self.d_begin=0
+        self.i_begin=0
+        # Tạo giao diện Tkinter
+        self.create_gui()
+
+    def create_gui(self):
+        self.root.title("PID Controller")
+
+        # Tạo các ô văn bản để nhập giá trị P, I, D
+
+        self.p_entry = tk.Entry(self.root)
+        self.p_entry.insert(tk.END, str(self.p_begin))
+        self.p_label = tk.Label(self.root, text="P Value:")
+        self.p_label.grid(row=0, column=2)
+        self.p_entry.grid(row=0, column=3)
+
+        self.i_entry = tk.Entry(self.root)
+        self.i_entry.insert(tk.END, "0")
+        self.i_label = tk.Label(self.root, text="I Value:")
+        self.i_label.grid(row=1, column=2)
+        self.i_entry.grid(row=1, column=3)
+
+        self.d_entry = tk.Entry(self.root)
+        self.d_entry.insert(tk.END, str(self.d_begin))
+        self.d_label = tk.Label(self.root, text="D Value:")
+        self.d_label.grid(row=2, column=2)
+        self.d_entry.grid(row=2, column=3)
+        self.p_entry_2 = tk.Entry(self.root)
+        self.p_entry_2.insert(tk.END, str(self.p_begin))
+        self.p_entry_2.grid(row=0, column=1)
+
+        self.i_entry_2 = tk.Entry(self.root)
+        self.i_entry_2.insert(tk.END, "0")
+        self.i_entry_2.grid(row=1, column=1)
+
+        self.d_entry_2 = tk.Entry(self.root)
+        self.d_entry_2.insert(tk.END, str(self.d_begin))
+        self.d_entry_2.grid(row=2, column=1)
+        self.start_cmd = tk.Entry(self.root)
+        self.start_cmd.insert(tk.END, str("0/0#0"))
+        self.start_cmd.grid(row=2, column=0)
+        # Tạo nút bấm để gửi giá trị P, I, D qua Serial
+        self.send_button = tk.Button(self.root, text="Write_PID", command=self.send_pid_values)
+        self.send_button.grid(row=3, column=2)
+        self.start_button = tk.Button(self.root, text="Start", command=self.start_motor)
+        self.checkbox_var = tk.BooleanVar()
+        self.checkbox = tk.Checkbutton(self.root, text="ff", variable=self.checkbox_var, command=self.ff_callback)
+
+        self.start_button.grid(row=3, column=0)
+        self.checkbox.grid(row=3, column=3)
+        self.figure = plt.Figure(figsize=(5, 5), dpi=100)
+        self.ax = self.figure.add_subplot(111)
+        self.ax.set_xlabel('Index')
+        self.ax.set_ylabel('Value')
+        self.ax.set_title('Data from Serial')
+        self.canvas = FigureCanvasTkAgg(self.figure, self.root)
+        self.canvas.get_tk_widget().grid(row=4, column=1, columnspan=2)
+    def ff_callback(self):
+        ff_now=self.checkbox_var.get()
+
+        # print(cmd_send)
+        cmd_send="stop"
+        ser.write(cmd_send.encode())
+    def start_motor(self):
+        # cmd_start="0.11-0.11"
+        cmd_start=self.start_cmd.get()
+        # self.data_split_l,self.data_split_r =[float(x) for x in cmd_start.split(',')]
+        ser.write(cmd_start.encode())
+    def send_pid_values(self):
+        p = float(self.p_entry.get())
+        i = float(self.i_entry.get())
+        d = float(self.d_entry.get())
+        p_2 = float(self.p_entry_2.get())
+        i_2 = float(self.i_entry_2.get())
+        d_2 = float(self.d_entry_2.get())
+        # pid_send = f"{p}:{i}#{d}\n"
+        pid_send=f"{p}:{i}#{d}*{d_2}\n"
+        print("write")
+        ser.write(pid_send.encode())
+        # Gửi giá trị P, I, D qua Serial
+        # pid_values = f"L:{p},{i}#{d}\n"
+        # ser.write(pid_values.encode())
+        # time.sleep(1.5)
+        # pid_values = f"R:{p_2},{i_2}#{d_2}\n"
+        # ser.write(pid_values.encode())
+        # if(p!=self.p_begin):
+        #     # p_value = f"{p}-{i}#{d}\n"
+        #     # p_value = f"2:{p}\n"
+        #     p_value = f"R:{p},{i}#{d}\n"
+        #     # p_value=f"L:{p},{i}#{d}\n"
+        #     # print(p_value)
+        #     ser.write(p_value.encode())
+        #     self.p_begin=p
+        # elif(d!=self.d_begin):
+        #     # d_value=f"{p}-{i}#{d}\n"
+        #     # d_value = f"3:{d}\n"
+        #     d_value = f"R:{p},{i}#{d}\n" # do an
+        #     # d_value=f"L:{p},{i}#{d}\n"
+        #     ser.write(d_value.encode())
+        #     self.d_begin=d
+        # elif(i!=self.i_begin):
+        #     # i_value=f"{p}-{i}#{d}\n"
+        #     i_value = f"R:{p},{i}#{d}\n"    # do an
+        #     # i_value = f"L:{p},{i}#{d}\n"
+        #     ser.write(i_value.encode())
+        #     self.i_begin=i
+    def read_from_serial(self):
+        data1 = []
+        data2 = []
+        data3=[]
+        data4=[]
+        while True:
+            if ser.in_waiting > 0:
+                data = ser.readline().decode().strip()  # Đọc dữ liệu từ Serial và loại bỏ ký tự xuống dòng
+                print(data)
+                if data == "done":
+                    self.ax.clear()  # Xóa biểu đồ cũ đi trước khi vẽ biểu đồ mới
+                    desired_l = []
+                    desired_r = []
+                    print("size:" + str(len(data1)))
+                    for i in range(0, len(data1)):
+                        desired_l.append(self.data_split_l)
+                        desired_r.append(self.data_split_r)
+                    # Khi nhận được chuỗi "done", vẽ biểu đồ cho 2 mảng dữ liệu
+                    self.ax.plot(data1, label='right_motor')
+                    self.ax.plot(data2, label='left_motor')
+                    self.ax.plot(data3, label='desired')
+                    self.ax.plot(data4, label='input')
+                    self.ax.legend()
+                    self.canvas.draw()
+                    data1 = []
+                    data2 = []
+                    data3 = []
+                    data4 = []
+                elif ',' in data:
+                    # Tách dữ liệu và lưu vào 2 mảng
+                    value1, value2,value3,value4 = [float(x) for x in data.split(',')]
+                    data1.append(value1/100.0)
+                    data2.append(value2/100.0)
+                    data3.append(value3)
+                    data4.append(value4)
+
+    def send_to_serial(self):
+        user_input=""
+        while True:
+            user_input = input("Enter data to send : ")
+            if ("L:" in user_input):
+                index_of_L = user_input.index("L:")
+                part_after_L = user_input[index_of_L + len("L:"):]
+                p, i, d = (float(y) for y in part_after_L.split(','))
+                user_input = "L:" + str(p) + "," + str(i) + "#" + str(d)
+            elif ("R:" in user_input):
+                index_of_R = user_input.index("R:")
+                part_after_R = user_input[index_of_R + len("R:"):]
+                p, i, d = (float(y) for y in part_after_R.split(','))
+                user_input = "R:" + str(p) + "," + str(i) + "#" + str(d)
+            if ('-' in user_input):
+                self.data_split_l, self.data_split_r = [float(x) for x in user_input.split('-')]
+            if user_input.lower() == 'exit':
+                break
+            # print(user_input)
+            ser.write((user_input + "\n").encode())
+
+    def run(self):
+        # Tạo luồng đọc dữ liệu từ Serial
+        read_thread = threading.Thread(target=self.read_from_serial)
+        read_thread.daemon = True
+        read_thread.start()
+        send_thread = threading.Thread(target=self.send_to_serial)
+        send_thread.start()
+        read_thread.join()
+        send_thread.join()
+        ser.close()
+
+
+if __name__ == '__main__':
+    try:
+        root = tk.Tk()
+        nod = serial_process(root)
+        threading.Thread(target=nod.run).start()
+        root.mainloop()
+
+
+    except Exception as error:
+        # handle the exception
+        print("An exception occurred:", error)  # An exception occurred: division by zero
