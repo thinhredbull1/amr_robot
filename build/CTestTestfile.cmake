@@ -5,4 +5,5 @@
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.
 subdirs("gtest")
-subdirs("follow_waypoints-master")
+subdirs("nox_description")
+subdirs("nox")

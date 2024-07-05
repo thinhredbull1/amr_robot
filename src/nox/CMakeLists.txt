@@ -13,11 +13,14 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   teb_local_planner
+  geometry_msgs
+  tf_conversions
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
+find_package( PkgConfig REQUIRED)
+pkg_check_modules( jsoncpp REQUIRED jsoncpp )
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -105,10 +108,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES nox
-#  CATKIN_DEPENDS gmapping navigation nox_description ros_control ros_controllers roscpp rospy teb_local_planner
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES nox
+  CATKIN_DEPENDS roscpp tf_conversions geometry_msgs 
+  DEPENDS system_lib
 )
 
 ###########
@@ -118,8 +121,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
+  ${jsoncpp_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -203,4 +207,7 @@ catkin_install_python(PROGRAMS scripts/mpu6050.py scripts/test_odom.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 add_executable(nox_controller src/nox_controller.cpp)
-target_link_libraries(nox_controller ${catkin_LIBRARIES})
+target_link_libraries(nox_controller 
+  ${catkin_LIBRARIES} 
+  ${jsoncpp_LIBRARIES}
+)

@@ -4,7 +4,13 @@
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Twist.h>
 #include <stdio.h>
+// #include <iostream>
 #include <cmath>
+#include <fstream>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <jsoncpp/json/json.h>
+#include <std_msgs/String.h>
+#include <std_msgs/Float64.h>
 
 // double radius = 0.04;                              //Wheel radius, in m
 // double wheelbase = 0.187;                          //Wheelbase, in m
@@ -29,8 +35,50 @@ double last_e=0;
 const double PI=3.141592653589793;
 const double ENCODER_PULSES = 400.0; /// 395 count
 const float WHEEL_DIAMETER =0.105; // 32.708; // Adjust on test cm
+volatile bool check_data=0;
+volatile float mpu_theta=0.0;
 ros::Time current_time;
 ros::Time speed_time(0.0);
+Json::Value poses;
+void loadPosesFromFile(const std::string &file_path) {
+  std::ifstream file(file_path, std::ifstream::binary);
+  if (!file.is_open()) {
+    ROS_ERROR("Cannot open file: %s", file_path.c_str());
+    return;
+  }
+  file >> poses;
+}
+
+void idInitPoseCallback(const std_msgs::String::ConstPtr &msg,
+                        ros::Publisher &initpose_pub) {
+  std::string id = msg->data;
+  if (poses["poses"].isMember(id)) {
+    geometry_msgs::PoseWithCovarianceStamped initpose;
+    initpose.header.stamp = ros::Time::now();
+    initpose.header.frame_id = "map";
+    initpose.pose.pose.position.x = poses["poses"][id]["x"].asDouble();
+    initpose.pose.pose.position.y = poses["poses"][id]["y"].asDouble();
+    initpose.pose.pose.position.z = poses["poses"][id]["z"].asDouble();
+    initpose.pose.pose.orientation.x = poses["poses"][id]["qx"].asDouble();
+    initpose.pose.pose.orientation.y = poses["poses"][id]["qy"].asDouble();
+    initpose.pose.pose.orientation.z = poses["poses"][id]["qz"].asDouble();
+    initpose.pose.pose.orientation.w = poses["poses"][id]["qw"].asDouble();
+
+    // Set covariance to zero for simplicity
+    for (int i = 0; i < 36; ++i) {
+      initpose.pose.covariance[i] = 0.0;
+    }
+
+    initpose.pose.covariance[0] = 0.3;  // x
+    initpose.pose.covariance[7] = 0.3;  // y
+    initpose.pose.covariance[35] = 0.2; // orient
+
+    initpose_pub.publish(initpose);
+    ROS_INFO("Published initpose for ID: %s", id.c_str());
+  } else {
+    ROS_WARN("No pose found for ID: %s", id.c_str());
+  }
+}
 void handle_speed( const geometry_msgs::Vector3Stamped& speed) {
   speed_act_left = speed.vector.x;
   ROS_INFO("speed left : %d", speed_act_left);
@@ -38,19 +86,24 @@ void handle_speed( const geometry_msgs::Vector3Stamped& speed) {
   ROS_INFO("speed right : %d", speed_act_right);
   speed_dt = speed.vector.z;
   speed_time = speed.header.stamp;
+  check_data=1;
 }
 void handle_cmd_vel(const geometry_msgs::Twist& msg) {
   speed_linear=msg.linear.x;
   speed_angular=msg.angular.z;
   // ROS_INFO("angular: %f", speed_angular);
 }
-
+void handle_mpu(const std_msgs::Float64::ConstPtr& msg)
+{
+	mpu_theta=msg->data*0.0174533;
+}
 int main(int argc, char** argv){
   ros::init(argc, argv, "nox_controller");
   ros::NodeHandle n;
   ros::NodeHandle nh_private_("~");
   ros::Subscriber sub = n.subscribe("speed", 40, handle_speed);
   ros::Subscriber sub_cmd = n.subscribe("cmd_vel", 40, handle_cmd_vel);
+  ros::Subscriber mpu_sub = n.subscribe("mpu", 20, handle_mpu);	
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
   ros::Publisher vel_pub = n.advertise<geometry_msgs::Vector3Stamped>("cmd_vel_2", 40);
   tf::TransformBroadcaster broadcaster;  
@@ -70,7 +123,15 @@ int main(int argc, char** argv){
   double vx = 0.0;
   double vy = 0.0;
   double vth = 0.0;
-  char base_link[] = "base_footprint";
+  double theta_odom=0;
+  double last_theta_mpu=0;
+  double last_theta=0;
+  double mpu_theta_new=0;
+  bool renew_odom=0;
+  bool use_mpu=true;
+  bool print_data=1;
+  bool print_yaw=1;
+  char base_link[] = "base_link";
   char odom[] = "odom";
   char laser[]="/laser_link";
   char kinect[] = "/kinect";
@@ -79,10 +140,15 @@ int main(int argc, char** argv){
 
 
   ros::Duration d(1.0);
+  std::string file_path ="/home/user/catkin_ws/src/init_pose/depends/init_pose.json";
+  nh_private_.getParam("initpose_file_path", file_path);
   nh_private_.getParam("publish_rate", rate);
+  nh_private_.getParam("print_data", print_data);
+	nh_private_.getParam("print_yaw", print_yaw);
   nh_private_.getParam("robot_width", robot_width);
   nh_private_.getParam("publish_tf", publish_tf);
   nh_private_.getParam("GEAR_RATIO", GEAR_RATIO);
+  nh_private_.getParam("use_mpu", use_mpu);
   nh_private_.getParam("bias", bias);
   nh_private_.getParam("p_rot", p_rot);
   nh_private_.getParam("d_rot", d_rot);
@@ -90,39 +156,70 @@ int main(int argc, char** argv){
   ROS_INFO("bias:%f",bias);
   ROS_INFO("rate:%f",rate);
   ROS_INFO("gear:%f",GEAR_RATIO);
-    m_per_count_l=(1-bias)*PI*WHEEL_DIAMETER/(ENCODER_PULSES*GEAR_RATIO);
+  loadPosesFromFile(file_path);
+	m_per_count_l=(1-bias)*PI*WHEEL_DIAMETER/(ENCODER_PULSES*GEAR_RATIO);
    m_per_count_r=(1+bias)*PI*WHEEL_DIAMETER/(ENCODER_PULSES*GEAR_RATIO); 
+	ros::Publisher initpose_pub =n.advertise<geometry_msgs::PoseWithCovarianceStamped>("/initialpose", 10);
+  ros::Subscriber id_init_pose_sub = n.subscribe<std_msgs::String>(
+      "id_init_pose", 10,
+      boost::bind(idInitPoseCallback, _1, boost::ref(initpose_pub)));
   ros::Rate r(rate);
   while(n.ok()){
     ros::spinOnce();
     current_time = speed_time;
     dt = speed_dt;					//Time in s
     //ROS_INFO("dt : %f", dt);
-    if(dt!=0.0)
+    if(dt!=0.0 && check_data==1)
     {
+		check_data=0;
 	    double delta_l=speed_act_left*m_per_count_l;
 	    double delta_r=speed_act_right*m_per_count_r;
 	    dxy = (delta_l+delta_r)/2;
 	    // ROS_INFO("dxy : %f", dxy);
 	    dth = ((delta_r-delta_l))/robot_width;
-	    theta += dth;
-	    dx = cos(theta) * dxy;
-	    dy = sin(theta) * dxy;
-	    
-     	    if(theta >= two_pi/2.0) theta -= two_pi;
+	    theta_odom += dth;
+		double dtheta_mpu=mpu_theta-last_theta_mpu;
+		// mpu_theta_new+=dtheta_mpu;
+		float diff_yaw;
+		if(use_mpu)
+		{
+			if(dth!=0){
+				renew_odom=1;
+			}
+			if(dth==0&&renew_odom==1){
+				renew_odom=0;
+				theta_odom=theta;
+			}
+			theta=0.98*(theta+dtheta_mpu)+0.02*theta_odom;
+			 diff_yaw=(theta-last_theta)/dt;
+		}
+		else 
+		{
+			theta=theta_odom;
+			 diff_yaw=dth/dt;
+		}
+		
+		
+		if(theta_odom>=two_pi/2.0)theta_odom-=two_pi;
+		else if(theta_odom<=-two_pi/2.0)theta_odom+=two_pi;
+		if(theta >= two_pi/2.0) 
+		{
+			theta -= two_pi;
+
+		}
 	    if(theta <= -two_pi/2.0) theta += two_pi;
+	
+		last_theta=theta;
+		dx = cos(theta) * dxy;
+	    dy = sin(theta) * dxy;
 	    x_pos+=dx;
 	    y_pos+=dy;
 	    //x_pos += (cos(theta) * dx - sin(theta) * dy);
 	    //y_pos += (sin(theta) * dx + cos(theta) * dy);
-	    
-	    
 	    if(p_rot==0)angular_cmd_cal=speed_angular;
 	    else{
-	    
-	    double error = speed_angular - (dth)/dt;
+	    double error = speed_angular - diff_yaw;
 	    s_rot_error += error;
-	    
 	    double d_input = s_rot_error - last_e;
 	    last_e = s_rot_error;
 	    angular_cmd_cal = s_rot_error * p_rot + d_input * d_rot;
@@ -130,15 +227,24 @@ int main(int argc, char** argv){
 	    {
 	    	s_rot_error=0;
 	    	angular_cmd_cal=0;
-    		}
+		}
 	    if (angular_cmd_cal > 0.65) angular_cmd_cal = 0.65;
 	    else if (angular_cmd_cal < -0.65) angular_cmd_cal = -0.65;
 	    }
+		if(print_data)
+		{
 	    ROS_INFO("angular:%f",theta*57.29);
-	    // ROS_INFO("dt : %f", dt);
+	  
 	    ROS_INFO("x : %f", x_pos);
 	    ROS_INFO("y : %f", y_pos);
-	   
+		}
+		if(print_yaw)
+		{
+			ROS_INFO("dth : %f", diff_yaw);
+			ROS_INFO("theta : %f", theta);
+			ROS_INFO("theta_odom: %f", theta_odom);
+			ROS_INFO("theta_mpu: %f", mpu_theta);
+		}
 
 	    geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(theta);
 	    geometry_msgs::Quaternion empty_quat = tf::createQuaternionMsgFromYaw(0);
@@ -154,17 +260,7 @@ int main(int argc, char** argv){
 	      t.transform.translation.z = 0.0;
 	      t.transform.rotation = odom_quat;
 	      t.header.stamp = current_time;
-	      
-	      // k.header.frame_id = kinect;
-	      // k.child_frame_id = camera_link;
-	      // k.transform.translation.x = 0.0;
-	      // k.transform.translation.y = 0.0;
-	      // k.transform.translation.z = 0.0;
-	      // k.transform.rotation = empty_quat;
-	      // k.header.stamp = current_time;
-
 	      broadcaster.sendTransform(t);
-	      // broadcaster.sendTransform(k);
 	    }
 
 	    nav_msgs::Odometry odom_msg;
@@ -213,8 +309,6 @@ int main(int argc, char** argv){
 	    odom_msg.twist.twist.linear.y = 0.0;
 	    odom_msg.twist.twist.angular.z = vth;
 	    geometry_msgs::Vector3Stamped vel_msg;
-	    
-	    
 	    vel_msg.header.stamp =current_time;
 	    vel_msg.vector.x = speed_linear;
 	    vel_msg.vector.y = 0;  // m

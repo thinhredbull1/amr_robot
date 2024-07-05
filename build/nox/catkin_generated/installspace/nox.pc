@@ -3,6 +3,6 @@ prefix=/home/ubuntu/amr_ws/install
 Name: nox
 Description: Description of nox
 Version: 1.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -lnox
+Requires: roscpp tf_conversions geometry_msgs

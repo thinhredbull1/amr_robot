@@ -6,5 +6,5 @@ CXX_FLAGS = -O3 -DNDEBUG
 
 CXX_DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"nox\"
 
-CXX_INCLUDES = -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/opt/ros/noetic/include/g2o -I/usr/include/suitesparse -I/usr/include/eigen3 
+CXX_INCLUDES = -I/home/ubuntu/amr_ws/src/nox/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/opt/ros/noetic/include/g2o -I/usr/include/suitesparse -I/usr/include/eigen3 -I/usr/include/jsoncpp 
 

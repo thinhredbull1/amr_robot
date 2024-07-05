@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import rospy
+from std_msgs.msg import Float64
 import smbus  # import SMBus module of I2C
 from math import atan2, asin, sqrt
 
@@ -22,18 +23,20 @@ class MPU6050:
 		self.GYRO_ZOUT_H = 0x47
 		self.MPU6050_RA_CONFIG = 0x1A
 		self.MPU6050_RA_ACCEL_CONFIG = 0x1C
-		self.MPU6050_AXOFFSET = -389.695
-		self.MPU6050_AYOFFSET = -149.266
-		self.MPU6050_AZOFFSET = 4331.793
-		self.MPU6050_GXOFFSET = -43.5445
-		self.MPU6050_GYOFFSET = -11.1285
-		self.MPU6050_GZOFFSET = -11.4765
+		self.MPU6050_AXOFFSET = 443.957
+		self.MPU6050_AYOFFSET = -4194.2655
+		self.MPU6050_AZOFFSET = 32.2855
+		self.MPU6050_GXOFFSET = -50.051
+		self.MPU6050_GYOFFSET = -23.1275
+		self.MPU6050_GZOFFSET = -19.732
 		self.twoKpDef = 2.0 * 0.5
 		self.twoKiDef = 2.0 * 0.0
 		self.MPU6050_AXGAIN = 4096.0
 		self.MPU6050_AYGAIN = 4096.0
 		self.MPU6050_AZGAIN = 4096.0
 		self.MPU6050_GXGAIN = 16.384
+		self.MPU6050_GYGAIN = 16.384
+		self.MPU6050_GZGAIN = 16.384
 		self.twoKp = self.twoKpDef
 		self.twoKi = self.twoKiDef
 		self.q0 = 1.0
@@ -49,8 +52,8 @@ class MPU6050:
 		self.gyro_x = 0.0
 		self.gyro_y = 0.0
 		self.gyro_z = 0.0
-
-	def MPU_Init(self):
+		self.mpu_pub = rospy.Publisher("/mpu",Float64,queue_size=5)
+	def MPU_Init(self):	
         # write to sample rate register
         # sample rate = 1000/(1+rate) rate =7
 		self.bus.write_byte_data(self.Device_Address, self.SMPLRT_DIV, 0x00)
@@ -198,7 +201,13 @@ class MPU6050:
 		self.calib_mpu()
 		start_time=rospy.Time.now()
 		rate=rospy.Rate(100)
+		roll=0
+		pitch=0
+		pitch_now=0
 		count_=0
+		last_time_2=rospy.Time.now()
+		d_gyro=0
+		angle_pub=0
 		while not rospy.is_shutdown():
 			self.read_mpu_data()
 			gx,gy,gz,ax,ay,az=self.update_quaternion()
@@ -206,15 +215,22 @@ class MPU6050:
 			current_time=rospy.Time.now()
 			elapstime=(current_time-start_time).to_sec()
 			start_time=current_time
-			self.MahonyAHRSupdateIMU(gx,gy,gz,ax,ay,az,(1.0/elapstime))
-			r,p,y=self.get_roll_pitch_yaw()
-			count_+=1
-			if(count_>=50):
-				#print(elapstime)
+			roll += gx * elapstime
+			pitch += gy * elapstime
+			# self.MahonyAHRSupdateIMU(gx,gy,gz,ax,ay,az,(1.0/elapstime))
+			# r,p,y=self.get_roll_pitch_yaw()
+			time_publish=(current_time-last_time_2).to_sec()
+			if(time_publish>=0.05):
 				#print("r:"+str(r))
-				print("p:"+str(p))
 				count_=0
-			rate.sleep()
+				theta_now=Float64()
+			
+				theta_now.data=pitch
+				# print("pitch2:"+str(theta_now.data))
+				# print(time_publish)
+				last_time_2=current_time
+				self.mpu_pub.publish(theta_now)
+			# rate.sleep()
 		
 if __name__ == '__main__':
 	try:

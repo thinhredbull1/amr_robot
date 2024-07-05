@@ -7,6 +7,7 @@ nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/incl
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/geometry_msgs/Pose.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/geometry_msgs/PoseStamped.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/geometry_msgs/PoseWithCovariance.h
+nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/geometry_msgs/PoseWithCovarianceStamped.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/geometry_msgs/Quaternion.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/geometry_msgs/QuaternionStamped.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/geometry_msgs/Transform.h
@@ -73,7 +74,9 @@ nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/incl
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/ros/wall_timer.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/ros/wall_timer_options.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/rosconsole/macros_generated.h
+nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/std_msgs/Float64.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/std_msgs/Header.h
+nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/std_msgs/String.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/tf/LinearMath/Matrix3x3.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/tf/LinearMath/MinMax.h
 nox/CMakeFiles/nox_controller.dir/src/nox_controller.cpp.o: /opt/ros/noetic/include/tf/LinearMath/QuadWord.h

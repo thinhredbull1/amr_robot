@@ -7,7 +7,7 @@ import tf
 import math
 
 from visualization_msgs.msg import Marker, MarkerArray
-from geometry_msgs.msg import PoseWithCovarianceStamped, Vector3
+from geometry_msgs.msg import Pose, Vector3,PoseWithCovarianceStamped
 from actionlib_msgs.msg import GoalID, GoalStatusArray, GoalStatus
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from std_msgs.msg import Empty, String
@@ -160,6 +160,8 @@ class PathPlanner():
         self.collision_follow_pub = rospy.Publisher("/stop_signal",Empty,queue_size=1)
         self.node_visual_pub = rospy.Publisher("/node_visual", MarkerArray, queue_size = 2)
         self.node_context_pub = rospy.Publisher("/node_context", MarkerArray, queue_size = 2)
+        self.robot_pose_pub=rospy.Publisher("/robot_pose",Pose,queue_size=3)
+        self.robot_pose_msg=Pose()
         self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         rospy.loginfo('Connecting to move_base...')
         self.client.wait_for_server()
@@ -226,8 +228,15 @@ class PathPlanner():
     def currentUpdate(self,data):   
         now = rospy.Time()  
         try:   
-            self.listener.waitForTransform('map','base_footprint', now, rospy.Duration(0.5))
-            trans,rot = self.listener.lookupTransform('map','base_footprint',now)
+            self.listener.waitForTransform('map','base_link', now, rospy.Duration(0.5))
+            trans,rot = self.listener.lookupTransform('map','base_link',now)
+            self.robot_pose_msg.position.x = trans[0]
+            self.robot_pose_msg.position.y = trans[1]
+            self.robot_pose_msg.position.z = 0
+            self.robot_pose_msg.orientation.x = rot[0]
+            self.robot_pose_msg.orientation.y = rot[1]
+            self.robot_pose_msg.orientation.z = rot[2]
+            self.robot_pose_msg.orientation.w = rot[3]
             distance = 999
             for item in self.node_location:
                 dis = math.sqrt(pow(trans[0]-item['x'],2)+pow(trans[1]-item['y'],2))
@@ -260,7 +269,7 @@ class PathPlanner():
             if (self.updated_flag == False) and (self.collision_flag == False):
                 self.current_tag_pub.publish(self.current_node)
                 self.updated_flag = True
-
+            self.robot_pose_pub.publish(self.robot_pose_msg)
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException, tf2_ros.TransformException) as e:
             print("Error look up transform", e)
             

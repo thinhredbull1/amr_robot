@@ -5,15 +5,14 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Local Planner1
         - /Local Planner1/LocalPath1
         - /Local Planner1/LocalCostmap1
         - /Global Planner1
         - /Global Planner1/GlobalPath1
         - /Global Planner1/GlobalCostmap1
-        - /Robot1
         - /Robot1/LaserScan1
-        - /Robot1/AMCL Particles1
+        - /MarkerArray1
+        - /MarkerArray2
       Splitter Ratio: 0.5
     Tree Height: 183
   - Class: rviz/Selection
@@ -64,28 +63,11 @@ Visualization Manager:
       Collision Enabled: false
       Enabled: true
       Links:
-        All Links Enabled:
-          {}
+        All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base_footprint:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        imu:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        laser:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
       Name: RobotModel
       Robot Description: robot_description
       TF Prefix: ""
@@ -99,11 +81,7 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        base_footprint:
-          Value: true
         base_link:
-          Value: true
-        imu:
           Value: true
         laser:
           Value: true
@@ -120,12 +98,9 @@ Visualization Manager:
       Tree:
         map:
           odom:
-            base_footprint:
-              base_link:
-                imu:
-                  {}
-                laser:
-                  {}
+            base_link:
+              laser:
+                {}
       Update Interval: 0
       Value: true
     - Alpha: 0.699999988079071
@@ -284,7 +259,7 @@ Visualization Manager:
           Axes Radius: 0.009999999776482582
           Class: rviz/PoseArray
           Color: 255; 25; 0
-          Enabled: true
+          Enabled: false
           Head Length: 0.07000000029802322
           Head Radius: 0.029999999329447746
           Name: AMCL Particles
@@ -294,7 +269,7 @@ Visualization Manager:
           Shape: Arrow (Flat)
           Topic: /gmcl_particlecloud
           Unreliable: false
-          Value: true
+          Value: false
         - Class: rviz/TF
           Enabled: false
           Filter (blacklist): ""
@@ -349,6 +324,38 @@ Visualization Manager:
           Value: false
       Enabled: true
       Name: Robot
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.30000001192092896
+      Head Radius: 0.10000000149011612
+      Name: Pose
+      Queue Size: 10
+      Shaft Length: 1
+      Shaft Radius: 0.05000000074505806
+      Shape: Arrow
+      Topic: /move_base/current_goal
+      Unreliable: false
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /node_visual
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /node_context
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -377,7 +384,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 10
+      Distance: 5.996953964233398
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -393,9 +400,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.46539801359176636
+      Pitch: 0.6553979516029358
       Target Frame: <Fixed Frame>
-      Yaw: 0.8853979706764221
+      Yaw: 0.9653979539871216
     Saved: ~
 Window Geometry:
   Displays:

@@ -1,2 +1,2 @@
-follow_waypoints-master:gmcl:mpu6050_ros:nox:nox_description:ydlidar_ros_driver
--DCATKIN_DEVEL_PREFIX=/home/ubuntu/amr_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ubuntu/amr_ws/install -G Unix Makefiles
+nox:nox_description
+-DCATKIN_DEVEL_PREFIX=/home/ubuntu/amr_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ubuntu/amr_ws/install -DCATKIN_WHITELIST_PACKAGES=nox;nox_description -G Unix Makefiles

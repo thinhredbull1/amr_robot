@@ -13,12 +13,16 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>nox_description</build_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>geometry_msgs</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>teb_local_planner</build_depend>
   <build_export_depend>nox_description</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>teb_local_planner</build_export_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+    <build_depend>tf_conversions</build_depend>
+    <exec_depend>tf_conversions</exec_depend>
   <exec_depend>nox_description</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>

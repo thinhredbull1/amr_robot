@@ -17,11 +17,13 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "/home/ubuntu/amr_ws/src/nox/include"
   "/opt/ros/noetic/include"
   "/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   "/opt/ros/noetic/include/g2o"
   "/usr/include/suitesparse"
   "/usr/include/eigen3"
+  "/usr/include/jsoncpp"
   )
 
 # Targets to which this target links.

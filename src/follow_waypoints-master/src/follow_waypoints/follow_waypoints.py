@@ -140,12 +140,14 @@ class FollowPath(State):
                     i = i + 1
                 elif path_collision[i] == 'N':
                     #This is the loop which exist when the robot is near a certain GOAL point.
+                    
                     while(distance > self.distance_tolerance) and (cancel_flag == False):
                         now = rospy.Time.now()
                         self.listener.waitForTransform(self.frame_id, self.base_frame_id, now, rospy.Duration(0.5))
                         trans,rot = self.listener.lookupTransform(self.frame_id,self.base_frame_id, now)
                         distance = math.sqrt(pow(waypoint.pose.pose.position.x-trans[0],2)+pow(waypoint.pose.pose.position.y-trans[1],2))
                     i = i + 1
+                rospy.sleep(1.2)
         if cancel_flag == False:
             self.client.wait_for_result()
             return 'success'

@@ -1,5 +1,5 @@
 <launch>
-	<include file="$(find nox)/launch/nox_bringup_thinh.launch" />
+	<include file="$(find nox)/launch/nox_bringup_tf.launch" />
 	<!--include file="$(find nox)/launch/nox_navigation_dwa.launch" / -->
 	<arg name="set_base_frame" default="base_link"/>
   <arg name="set_odom_frame" default="odom"/>

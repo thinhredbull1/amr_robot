@@ -3,7 +3,7 @@ DWAPlannerROS:
   odom_topic: odom
 
 # Robot Configuration Parameters
-  max_vel_x: 0.16
+  max_vel_x: 0.2
   min_vel_x: -0.16
 
   max_vel_y: 0.0            # 0 for non-holonomic robot
@@ -12,11 +12,11 @@ DWAPlannerROS:
 # The velocity when robot is moving in a straight line
   max_vel_trans:  0.22
   min_vel_trans:  0.08
-  max_vel_theta: 2.45
-  min_vel_theta: 0.15
-  acc_lim_x: 1.2
+  max_vel_theta: 0.8
+  min_vel_theta: 0.12
+  acc_lim_x: 1.5
   acc_lim_y: 0.0
-  acc_lim_theta: 3.2
+  acc_lim_theta: 2.5
 
 # Goal Tolerance Parametes
   xy_goal_tolerance: 0.1
@@ -26,7 +26,7 @@ DWAPlannerROS:
 # Forward Simulation Parameters
   sim_time: 2.0                    # The amount of time to forward-simulate trajectories in seconds
   sim_granularity: 0.025           # The step size, in meters, to take between points on a given trajectory
-  vx_samples: 25                   # The number of samples to use when exploring the x velocity space
+  vx_samples: 30                   # The number of samples to use when exploring the x velocity space
   vy_samples: 0                    # The number of samples to use when exploring the y velocity space
   vtheta_samples: 40               # The number of samples to use when exploring the theta velocity space
   controller_frequency: 10.0       # The frequency at which this controller will be called in Hz

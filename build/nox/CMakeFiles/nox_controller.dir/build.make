@@ -107,7 +107,6 @@ nox_controller_EXTERNAL_OBJECTS =
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/liblayers.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libdynamic_reconfigure_config_init_mutex.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/liblaser_geometry.so
-/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libtf.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libvoxel_grid.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libclass_loader.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/aarch64-linux-gnu/libPocoFoundation.so
@@ -117,6 +116,10 @@ nox_controller_EXTERNAL_OBJECTS =
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/aarch64-linux-gnu/libpython3.8.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/aarch64-linux-gnu/libboost_program_options.so.1.71.0
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/aarch64-linux-gnu/libtinyxml2.so
+/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libtf_conversions.so
+/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libkdl_conversions.so
+/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/liborocos-kdl.so
+/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libtf.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libtf2_ros.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libactionlib.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libmessage_filters.so
@@ -124,14 +127,14 @@ nox_controller_EXTERNAL_OBJECTS =
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/aarch64-linux-gnu/libpthread.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/aarch64-linux-gnu/libboost_chrono.so.1.71.0
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/aarch64-linux-gnu/libboost_filesystem.so.1.71.0
+/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libxmlrpcpp.so
+/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libtf2.so
+/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libroscpp_serialization.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/librosconsole.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/librosconsole_log4cxx.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/librosconsole_backend_interface.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/aarch64-linux-gnu/liblog4cxx.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/aarch64-linux-gnu/libboost_regex.so.1.71.0
-/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libxmlrpcpp.so
-/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libtf2.so
-/home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libroscpp_serialization.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/librostime.so
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /usr/lib/aarch64-linux-gnu/libboost_date_time.so.1.71.0
 /home/ubuntu/amr_ws/devel/lib/nox/nox_controller: /opt/ros/noetic/lib/libcpp_common.so

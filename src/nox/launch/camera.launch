@@ -1,0 +1,8 @@
+<launch>
+	
+	<node name="camera_node" pkg="my_image_transport" type="image_publisher.py" output="screen">
+		<param name="camera_id" value="0"/>
+	</node>
+
+
+</launch>
