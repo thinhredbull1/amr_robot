@@ -126,25 +126,18 @@ class QRCodeDistanceCalculator:
         # pub = rospy.Publisher('camera/image', Image, queue_size=10)
         # bridge = CvBridge()
         camera=None
-        counter = 0
         rate = rospy.Rate(10)
-        run_camera=0
         twist = Twist()
         twist.linear.y = 0.0  # Vận tốc tuyến tính theo trục y (m/s)
         twist.linear.z = 0.0  # Vận tốc tuyến tính theo trục z (m/s)
         twist.angular.x = 0.0 # Vận tốc góc theo trục x (rad/s)
         twist.angular.y = 0.0 # Vận tốc góc theo trục y (rad/s)
         x_dis=0
-        wait_to_distance=0
         x_vel=0
         turn_vel=0
         end_time=rospy.Time.now()
         count_to_go=0
-        stop_now=0
-        done_forward=0
         count_stop=0
-        camera_calib=0
-        wait_to_pub=0
         last_turn=0
         go_backward=0
         qr_type=""
