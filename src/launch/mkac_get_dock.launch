@@ -1,0 +1,24 @@
+<launch>
+
+    <!-- <param name="detection_node/dock_filepath" value="$(find docking)/pcd/simulation.pcd"/> -->
+    <!-- <param name="dock_filepath" value="$(find docking)/pcd/simulation.pcd"/> -->
+    <arg name="scanner" default="lms"/>
+    <!-- <arg name="scanner" default="turtlebot"/> -->
+
+    <!-- Use this package: http://wiki.ros.org/laser_filters -->
+    <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
+        <rosparam command="load" file="$(find docking)/config/laser_filter/mkac_laser_filter_$(arg scanner).yaml"/>
+    </node>
+
+    <!-- use this package: http://wiki.ros.org/pointcloud_to_laserscan -->
+    <node pkg="pointcloud_to_laserscan" type="laserscan_to_pointcloud_node" name="laserscan_to_pointcloud">
+        <remap from="scan_in" to="scan_filtered"/>
+        <remap from="cloud" to="cloud"/>
+    </node>
+
+    <node pkg="docking" type="detection_node" name="detection_node" output="screen" respawn="false" clear_params="true" >
+		<rosparam file="$(find docking)/config/detection_params.yaml"/>
+		<!-- Overwrite dock_filepath in yaml file -->
+		<param name="dock_filepath" value="$(find docking)/pcd/mkac_vl_marking.pcd"/>
+    </node>
+</launch>

@@ -1,0 +1,29 @@
+<launch>
+  <arg name="use_sim_time" default="true"/>
+
+  <!-- Use this package: http://wiki.ros.org/laser_filters -->
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
+    <rosparam command="load" file="$(find docking)/config/laser_filter/mkac_laser_leg_filter.yaml"/>
+    <remap from="scan_filtered" to="scan_in"/>
+  </node>
+
+  <!-- use this package: http://wiki.ros.org/pointcloud_to_laserscan -->
+  <node pkg="pointcloud_to_laserscan" type="laserscan_to_pointcloud_node" name="laserscan_to_pointcloud">
+    <!-- <remap from="scan_in" to="scan_filtered2"/> -->
+    <remap from="cloud" to="cloud2"/>
+  </node>
+
+  <node pkg="docking" type="detection_node" name="detection_node" output="screen" respawn="false" clear_params="true">
+    <rosparam file="$(find docking)/config/leg_cart.yaml"/>
+    <!-- Overwrite dock_filepath in yaml file -->
+    <param name="dock_filepath" value="$(find docking)/pcd/mkac_vl_marking.pcd"/>
+    <remap from="cloud" to="cloud2"/>
+  </node>
+
+  <node pkg="rosbag" type="play" name="player" args="-l $(find docking)/bag/2021-10-27-08-47-14.bag">
+  </node>
+
+  <arg name="rvizconfig" default="$(find docking)/config/rviz/leg.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
+
+</launch>
